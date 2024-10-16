@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+
+  <title>Expense Tracker</title>
+</head>
+
+<body>
+
+  <header>
+    <div class="container">
+      <h1>Expense Tracker</h1>
+      <nav>
+        <ul>
+          <li><a href="#">Summaries</a></li>
+          <li><a href="#">Budget Limits</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <div class="expenses">
+        <h2>Expenses</h2>
+        <ul class="expenses-inner">
+          <li class="expense dining">
+            <div>
+              <img src="img/svg/dining.svg" alt="Dining">
+              <div class="expense-content">
+                <h3>Restaurant Ltd.</h3>
+                <p>10/15/2024</p>
+              </div>
+            </div>
+            <span>$34.48</span>
+          </li>
+          <li class="expense groceries">
+            <div>
+              <img src="img/svg/groceries.svg" alt="Dining">
+              <div class="expense-content">
+                <h3>Market Ltd.</h3>
+                <p>10/15/2024</p>
+              </div>
+            </div>
+            <span>$34.48</span>
+          </li>
+          <li class="expense entertainment">
+            <div>
+              <img src="img/svg/entertainment.svg" alt="Dining">
+              <div class="expense-content">
+                <h3>Cinema Ltd.</h3>
+                <p>10/15/2024</p>
+              </div>
+            </div>
+            <span>$34.48</span>
+          </li>
+          <li class="expense transportation">
+            <div>
+              <img src="img/svg/transportation.svg" alt="Dining">
+              <div class="expense-content">
+                <h3>Skytrain Ltd.</h3>
+                <p>10/15/2024</p>
+              </div>
+            </div>
+            <span>$34.48</span>
+          </li>
+          <li class="expense healthcare">
+            <div>
+              <img src="img/svg/healthcare.svg" alt="Dining">
+              <div class="expense-content">
+                <h3>Hospital Ltd.</h3>
+                <p>10/15/2024</p>
+              </div>
+            </div>
+            <span>$34.48</span>
+          </li>
+
+          <li class="expense rent">
+            <div>
+              <img src="img/svg/rent.svg" alt="Dining">
+              <div class="expense-content">
+                <h3>Landlord Ltd.</h3>
+                <p>10/15/2024</p>
+              </div>
+            </div>
+            <span>$34.48</span>
+          </li>
+          <li class="expense shopping">
+            <div>
+              <img src="img/svg/shopping.svg" alt="Dining">
+              <div class="expense-content">
+                <h3>Store Ltd.</h3>
+                <p>10/15/2024</p>
+              </div>
+            </div>
+            <span>$34.48</span>
+          </li>
+        </ul>
+        <button>Add New Expense</button>
+      </div>
+      <div class="chart">
+        <h2>Chart</h2>
+        <canvas id="myChart"></canvas>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="script.js"></script>
+
+</body>
+
+</html>
