@@ -16,11 +16,13 @@
 header {
   padding: 20px;
   border-bottom: 1px solid #d9d9d9;
+
   .container {
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
+
   nav {
     ul {
       display: flex;
@@ -31,11 +33,13 @@ header {
 
 main {
   padding: 40px 20px;
+
   .container {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 120px;
   }
+
   .expenses {
     .expenses-inner {
       margin-top: 30px;
@@ -45,6 +49,7 @@ main {
       max-height: 380px;
       overflow-y: auto;
       padding: 0 20px 20px 0;
+
       .expense {
         padding: 20px;
         display: flex;
@@ -52,18 +57,22 @@ main {
         align-items: center;
         gap: 20px;
         border-radius: 10px;
-        > div {
+
+        >div {
           img {
             max-width: 30px;
           }
+
           display: flex;
           gap: 20px;
+
           .expense-content {
             width: 200px;
             display: flex;
             flex-direction: column;
           }
         }
+
         span {
           font-size: 1.25rem;
           font-weight: 600;
@@ -72,25 +81,33 @@ main {
         &.dining {
           background: linear-gradient(to bottom right, #abf5fa, #ffffff);
         }
+
         &.entertainment {
           background: linear-gradient(to bottom right, #d9abfa, #ffffff);
         }
+
         &.groceries {
           background: linear-gradient(to bottom right, #fff698, #ffffff);
         }
+
         &.healthcare {
           background: linear-gradient(to bottom right, #ff9898, #ffffff);
         }
+
         &.rent {
           background: linear-gradient(to bottom right, #98c6ff, #ffffff);
         }
+
         &.shopping {
           background: linear-gradient(to bottom right, #ffc398, #ffffff);
         }
+
         &.transportation {
           background: linear-gradient(to bottom right, #a2ff98, #ffffff);
         }
+
         position: relative;
+
         .expense-buttons {
           background: rgba(0, 0, 0, 0.7);
           position: absolute;
@@ -103,12 +120,15 @@ main {
           gap: 25px;
           align-items: center;
           border-radius: 10px;
+
           img {
             cursor: pointer;
           }
+
           opacity: 0;
           transition: opacity 0.2s ease;
         }
+
         &:hover {
           .expense-buttons {
             opacity: 1;
@@ -116,6 +136,7 @@ main {
         }
       }
     }
+
     button {
       padding: 12px 24px;
       background: #fff;
@@ -126,6 +147,7 @@ main {
       transition: 0.2s ease;
       margin-top: 20px;
       width: calc(100% - 35px);
+
       &:hover {
         background: #232323;
         border: 1px solid #232323;
@@ -133,6 +155,7 @@ main {
       }
     }
   }
+
   .chart {
     #myChart {
       padding-top: 20px;
@@ -216,4 +239,68 @@ main {
   margin: auto;
 }
 
+}
+
+/* Modal for Summary */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+  background-color: white;
+  margin: 5% auto;
+  padding: 10%;
+  border: 1px solid #888;
+  width: 80%;
+  height: 90%;
+  overflow-y: scroll;
+  position: relative;
+}
+
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 2rem;
+  font-weight: bold;
+  position: absolute;
+  top: 20px;
+  right: 30px
+}
+
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+#category-text {
+  font-size: 1.6rem;
+  font-weight: bold;
+  margin-bottom: 5%;
+}
+
+/* Summary info */
+.summary-info {
+  margin-top: 5%;
+}
+
+.expense-item {
+  margin: 300px auto;
+}
+
+.total-amount {
+  position: relative;
+  bottom: 10%;
+}
+
+.total-amount hr {
+  margin-bottom: 10px;
 }

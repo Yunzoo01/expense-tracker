@@ -7,7 +7,9 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+    rel="stylesheet">
 
   <link rel="stylesheet" href="style.css">
 
@@ -21,10 +23,33 @@
       <h1>Expense Tracker</h1>
       <nav>
         <ul>
-          <li><a href="#">Summaries</a></li>
+          <li id="summary"><a href="#">Summaries</a></li>
           <li><a href="#">Budget Limits</a></li>
         </ul>
       </nav>
+    </div>
+    <!-- Modal for Summary -->
+    <div id="sumModal" class="modal">
+      <div class="modal-content">
+        <span class="close">&times;</span>
+        <p id="category-text">Choose a category and Check how much you've spent</p>
+        <label for="category-summary">Category:</label>
+        <select id="category-summary" required>
+          <option value="default">Select</option>
+          <option value="dining">Dining</option>
+          <option value="entertainment">Entertainment</option>
+          <option value="groceries">Groceries</option>
+          <option value="healthcare">Healthcare</option>
+          <option value="rent">Rent</option>
+          <option value="shopping">Shopping</option>
+          <option value="transportation">Transportation</option>
+          <option value="etc">ETC</option>
+        </select>
+        <!-- Summary Info -->
+        <div id="expense-summary" class="summary-info">
+
+        </div>
+      </div>
     </div>
   </header>
 
@@ -47,6 +72,37 @@
             </div>
             <span>$34.48</span>
           </li>
+
+          <li class="expense dining">
+            <div class="expense-buttons">
+              <img src="img/svg/edit.svg" alt="Edit">
+              <img src="img/svg/delete.svg" alt="Delete">
+            </div>
+            <div>
+              <img src="img/svg/dining.svg" alt="Dining">
+              <div class="expense-content">
+                <h3>Restaurant Ltd.</h3>
+                <p>10/15/2024</p>
+              </div>
+            </div>
+            <span>$34.48</span>
+          </li>
+
+          <li class="expense dining">
+            <div class="expense-buttons">
+              <img src="img/svg/edit.svg" alt="Edit">
+              <img src="img/svg/delete.svg" alt="Delete">
+            </div>
+            <div>
+              <img src="img/svg/dining.svg" alt="Dining">
+              <div class="expense-content">
+                <h3>Restaurant Ltd.</h3>
+                <p>10/15/2024</p>
+              </div>
+            </div>
+            <span>$34.48</span>
+          </li>
+
           <li class="expense groceries">
             <div class="expense-buttons">
               <img src="img/svg/edit.svg" alt="Edit">
