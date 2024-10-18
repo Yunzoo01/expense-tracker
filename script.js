@@ -1,4 +1,3 @@
-
 const labels = [
   "Dining",
   "Entertainment",
@@ -7,7 +6,7 @@ const labels = [
   "Rent",
   "Shopping",
   "Transportation",
-  "Etc"
+  "Etc",
 ];
 
 const expenseData = labels.map((label) => {
@@ -42,25 +41,23 @@ new Chart(ctx, {
           "#98c6ff",
           "#ffc398",
           "#a2ff98",
-          "333333"
+          "333333",
         ],
       },
     ],
   },
 });
 
-
-
 //------- add expense modal --------
 //load previous localstorage memories on HTMLList
-window.onload = ()=>{
+window.onload = () => {
   const storedExpenses = localStorage.getItem("expenses");
   if (storedExpenses) {
     const expenses = JSON.parse(storedExpenses);
 
-    expenses.forEach(expense => {
-      const li = document.createElement('li');
-      li.classList.add('expense', expense.category);
+    expenses.forEach((expense) => {
+      const li = document.createElement("li");
+      li.classList.add("expense", expense.category);
 
       li.innerHTML = `
         <div class="expense-buttons">
@@ -82,33 +79,25 @@ window.onload = ()=>{
   }
 };
 
-
 const modal = document.getElementById("Modal");
 const openModalBtn = document.getElementById("openModal");
-const closeModalBtn = document.getElementsByClassName("close")[0];
+const closeModalBtn = document.querySelector("#Modal .close");
 
-openModalBtn.onclick = ()=>{
+openModalBtn.onclick = () => {
   modal.style.display = "block";
-}
+};
 
-closeModalBtn.onclick = ()=> {
+closeModalBtn.onclick = () => {
   modal.style.display = "none";
-}
+};
 
-// if you click the anotal side(except modal), modal is closed.
-window.onclick = (e)=> {
-  if (e.target == modal) {
-    modal.style.display = "none";
-  }
-}
-
-//add the category select 
-const categorySelect = document.getElementById('category'); 
-labels.forEach(label => {
-  const option = document.createElement('option');
-  option.value = label.toLowerCase(); 
-  option.textContent = label; 
-  categorySelect.appendChild(option); 
+//add the category select
+const categorySelect = document.getElementById("category");
+labels.forEach((label) => {
+  const option = document.createElement("option");
+  option.value = label.toLowerCase();
+  option.textContent = label;
+  categorySelect.appendChild(option);
 });
 
 document.getElementById("saveExpense").addEventListener("click", function () {
@@ -121,15 +110,16 @@ document.getElementById("saveExpense").addEventListener("click", function () {
   let storedExpenses = localStorage.getItem("expenses");
   storedExpenses = storedExpenses ? JSON.parse(storedExpenses) : [];
 
-  if (date && price && category) {  //requirement : date, price, category
+  if (date && price && category) {
+    //requirement : date, price, category
     const expenseData = {
       date: date,
-      price: parseFloat(price), 
+      price: parseFloat(price),
       category: category,
-      note: note
+      note: note,
     };
 
-    storedExpenses.push(expenseData); 
+    storedExpenses.push(expenseData);
     localStorage.setItem("expenses", JSON.stringify(storedExpenses));
 
     //add expenseList to HTML
@@ -160,37 +150,41 @@ document.getElementById("saveExpense").addEventListener("click", function () {
     document.getElementById("category").value = "";
     document.getElementById("note").value = "";
   }
-  
-  }); 
+});
 
 // Modal for Summary
-var sumModal = document.getElementById("sumModal");
-var sumBtn = document.getElementById("summary");
-var sumSpan = document.getElementsByClassName("close")[0];
+const sumModal = document.getElementById("sumModal");
+const sumBtn = document.getElementById("summary");
+const sumCloseBtn = document.querySelector("#sumModal .close");
 
-sumBtn.onclick = function () {
+sumBtn.onclick = () => {
   sumModal.style.display = "block";
-}
+};
 
-sumSpan.onclick = function () {
+sumCloseBtn.onclick = () => {
   sumModal.style.display = "none";
-}
+};
 
-window.onclick = function (e) {
+window.onclick = (e) => {
+  if (e.target == modal) {
+    modal.style.display = "none";
+  }
   if (e.target == sumModal) {
     sumModal.style.display = "none";
   }
-}
+};
 
 // Category Selection
-var sumCategory = document.getElementById('category-summary');
-var expenseSummaryContainer = document.getElementById('expense-summary');
+var sumCategory = document.getElementById("category-summary");
+var expenseSummaryContainer = document.getElementById("expense-summary");
 
-sumCategory.addEventListener('change', function () {
+sumCategory.addEventListener("change", function () {
   var selectedCategory = sumCategory.value;
   console.log("Selected category:", selectedCategory);
 
-  const expenseItems = document.querySelectorAll(`li.expense.${selectedCategory}`);
+  const expenseItems = document.querySelectorAll(
+    `li.expense.${selectedCategory}`
+  );
 
   // remove previous infos
   expenseSummaryContainer.innerHTML = "";
@@ -199,33 +193,29 @@ sumCategory.addEventListener('change', function () {
 
   if (expenseItems.length > 0) {
     expenseItems.forEach(function (expenseItem) {
-      const title = expenseItem.querySelector('h3').textContent;
-      const date = expenseItem.querySelector('p').textContent;
-      const amount = expenseItem.querySelector('span').textContent;
+      const title = expenseItem.querySelector("h3").textContent;
+      const date = expenseItem.querySelector("p").textContent;
+      const amount = expenseItem.querySelector("span").textContent;
 
-      const expenseDiv = document.createElement('div');
-      expenseDiv.classList.add('expense-item');
+      const expenseDiv = document.createElement("div");
+      expenseDiv.classList.add("expense-item");
       expenseDiv.innerHTML = `<span>${date} ${title} ${amount}</span>`;
       expenseSummaryContainer.appendChild(expenseDiv);
 
       // price
-      const sumPrice = parseFloat(amount.replace('$', ''));
+      const sumPrice = parseFloat(amount.replace("$", ""));
       sumTotalAmount += sumPrice;
     });
-    const totalDiv = document.createElement('div');
-    totalDiv.classList.add('total-amount');
+    const totalDiv = document.createElement("div");
+    totalDiv.classList.add("total-amount");
     totalDiv.innerHTML = `<hr> <h3>Total: $${sumTotalAmount.toFixed(2)}</h3>`;
     expenseSummaryContainer.appendChild(totalDiv);
-  }
-  else {
+  } else {
     if (selectedCategory != "default") {
       // when no items in a category
-      const noExpensesDiv = document.createElement('div');
+      const noExpensesDiv = document.createElement("div");
       noExpensesDiv.textContent = "No expenses for this category";
       expenseSummaryContainer.appendChild(noExpensesDiv);
     }
   }
 });
-
-
-
