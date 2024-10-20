@@ -23,8 +23,7 @@ const expenseData = labels.map((label) => {
 console.log(expenseData);
 
 const ctx = document.getElementById("myChart");
-
-new Chart(ctx, {
+const myChart = new Chart(ctx, {
   type: "doughnut",
   data: {
     labels: labels,
@@ -41,16 +40,36 @@ new Chart(ctx, {
           "#98c6ff",
           "#ffc398",
           "#a2ff98",
-          "333333",
+          "#a6a6a6",
         ],
       },
     ],
   },
 });
 
-//------- add expense modal --------
-//load previous localstorage memories on HTMLList
-window.onload = () => {
+// Chart update function
+const updateChart = (chart) => {
+  const storedExpenses = localStorage.getItem("expenses");
+  if (storedExpenses) {
+    const expenses = JSON.parse(storedExpenses);
+
+    // 카테고리별 지출 금액을 계산
+    const expenseData = labels.map((label) => {
+      const total = expenses
+        .filter((expense) => expense.category.toLowerCase() === label.toLowerCase())
+        .reduce((sum, expense) => sum + expense.price, 0);
+      return total;
+    });
+
+    // 차트 데이터 업데이트
+    chart.data.datasets[0].data = expenseData;
+    chart.update();
+  }
+};
+
+
+// loadExpenses : load previous localstorage memories on HTMLList
+const loadExpenses = () => {
   const storedExpenses = localStorage.getItem("expenses");
   if (storedExpenses) {
     const expenses = JSON.parse(storedExpenses);
@@ -78,7 +97,12 @@ window.onload = () => {
     });
   }
 };
+window.onload = () => {
+  loadExpenses();
+  updateChart(myChart);
+}
 
+//------- add expense modal --------
 const modal = document.getElementById("Modal");
 const openModalBtn = document.getElementById("openModal");
 const closeModalBtn = document.querySelector("#Modal .close");
@@ -106,12 +130,10 @@ document.getElementById("saveExpense").addEventListener("click", function () {
   const category = document.getElementById("category").value;
   const note = document.getElementById("note").value;
 
-  //prevents localStorage data from being refreshed
   let storedExpenses = localStorage.getItem("expenses");
   storedExpenses = storedExpenses ? JSON.parse(storedExpenses) : [];
 
   if (date && price && category) {
-    //requirement : date, price, category
     const expenseData = {
       date: date,
       price: parseFloat(price),
@@ -122,7 +144,7 @@ document.getElementById("saveExpense").addEventListener("click", function () {
     storedExpenses.push(expenseData);
     localStorage.setItem("expenses", JSON.stringify(storedExpenses));
 
-    //add expenseList to HTML
+    // add expense to HTML
     const expenseList = document.getElementById("expenseList");
     const li = document.createElement("li");
     li.classList.add("expense", category);
@@ -143,14 +165,21 @@ document.getElementById("saveExpense").addEventListener("click", function () {
     `;
     expenseList.appendChild(li);
 
-    // closed the modal
+    // 모달 닫기
     modal.style.display = "none";
+
+    // 입력 필드 초기화
     document.getElementById("date").value = "";
     document.getElementById("price").value = "";
     document.getElementById("category").value = "";
     document.getElementById("note").value = "";
+
+    // 차트 업데이트
+    updateChart(myChart);
   }
 });
+
+
 
 // Modal for Summary
 const sumModal = document.getElementById("sumModal");
