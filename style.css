@@ -105,6 +105,9 @@ main {
         &.transportation {
           background: linear-gradient(to bottom right, #a2ff98, #ffffff);
         }
+        &.etc{
+          background: linear-gradient(to bottom right, #a6a6a6, #ffffff)
+        }
 
         position: relative;
 
