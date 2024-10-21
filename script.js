@@ -25,6 +25,7 @@ console.log(expenseData);
 const ctx = document.getElementById("myChart");
 const myChart = new Chart(ctx, {
   type: "doughnut",
+
   data: {
     labels: labels,
     datasets: [
@@ -47,26 +48,25 @@ const myChart = new Chart(ctx, {
   },
 });
 
-// Chart update function
+// updateChart : Chart update function
 const updateChart = (chart) => {
   const storedExpenses = localStorage.getItem("expenses");
   if (storedExpenses) {
     const expenses = JSON.parse(storedExpenses);
 
-    // 카테고리별 지출 금액을 계산
     const expenseData = labels.map((label) => {
       const total = expenses
-        .filter((expense) => expense.category.toLowerCase() === label.toLowerCase())
+        .filter(
+          (expense) => expense.category.toLowerCase() === label.toLowerCase()
+        )
         .reduce((sum, expense) => sum + expense.price, 0);
       return total;
     });
 
-    // 차트 데이터 업데이트
     chart.data.datasets[0].data = expenseData;
     chart.update();
   }
 };
-
 
 // loadExpenses : load previous localstorage memories on HTMLList
 const loadExpenses = () => {
@@ -84,7 +84,9 @@ const loadExpenses = () => {
           <img src="img/svg/delete.svg" alt="Delete">
         </div>
         <div>
-          <img src="img/svg/${expense.category}.svg" alt="${expense.category}">
+          <img class="category-image" src="img/svg/${
+            expense.category
+          }.svg" alt="${expense.category}">
           <div class="expense-content">
             <h3>${expense.note ? expense.note : "Unnamed Expense"}</h3>
             <p>${expense.date}</p>
@@ -97,22 +99,23 @@ const loadExpenses = () => {
     });
   }
 };
+
 window.onload = () => {
   loadExpenses();
   updateChart(myChart);
-}
+};
 
 //------- add expense modal --------
-const modal = document.getElementById("Modal");
+const addModal = document.getElementById("addModal");
 const openModalBtn = document.getElementById("openModal");
-const closeModalBtn = document.querySelector("#Modal .close");
+const closeModalBtn = document.querySelector("#addModal .close");
 
 openModalBtn.onclick = () => {
-  modal.style.display = "block";
+  addModal.style.display = "block";
 };
 
 closeModalBtn.onclick = () => {
-  modal.style.display = "none";
+  addModal.style.display = "none";
 };
 
 //add the category select
@@ -124,7 +127,8 @@ labels.forEach((label) => {
   categorySelect.appendChild(option);
 });
 
-document.getElementById("saveExpense").addEventListener("click", function () {
+//save button click
+document.getElementById("saveExpense").addEventListener("click", () => {
   const date = document.getElementById("date").value;
   const price = document.getElementById("price").value;
   const category = document.getElementById("category").value;
@@ -155,7 +159,7 @@ document.getElementById("saveExpense").addEventListener("click", function () {
         <img src="img/svg/delete.svg" alt="Delete">
       </div>
       <div>
-        <img src="img/svg/${category}.svg" alt="${category}">
+        <img class="category-image" src="img/svg/${category}.svg" alt="${category}">
         <div class="expense-content">
           <h3>${note ? note : "Unnamed Expense"}</h3>
           <p>${date}</p>
@@ -165,21 +169,165 @@ document.getElementById("saveExpense").addEventListener("click", function () {
     `;
     expenseList.appendChild(li);
 
-    // 모달 닫기
     modal.style.display = "none";
 
-    // 입력 필드 초기화
     document.getElementById("date").value = "";
     document.getElementById("price").value = "";
     document.getElementById("category").value = "";
     document.getElementById("note").value = "";
 
-    // 차트 업데이트
     updateChart(myChart);
   }
 });
 
+//------- delete expense modal -------
+document.getElementById("expenseList").addEventListener("click", (e) => {
+  if (e.target && e.target.alt === "Delete") {
+    const expenseItem = e.target.closest("li");
 
+    if (expenseItem) {
+      const categoryImage = expenseItem.querySelector(".category-image");
+      let category = "";
+      if (categoryImage) {
+        category = categoryImage.alt.toLowerCase();
+      } else {
+        console.error("There is no category image");
+        return; 
+      }
+
+      const date = expenseItem.querySelector("p").textContent;
+      const price = parseFloat(
+        expenseItem.querySelector("span").textContent.replace("$", "")
+      );
+
+      const storedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
+
+      const expenseIndex = storedExpenses.findIndex(
+        (expense) =>
+          expense.date === date &&
+          expense.price === price &&
+          expense.category.toLowerCase() === category
+      );
+
+      if (expenseIndex > -1) {
+        storedExpenses.splice(expenseIndex, 1);
+        localStorage.setItem("expenses", JSON.stringify(storedExpenses));
+
+        expenseItem.remove();
+
+        updateChart(myChart);
+      }
+    }
+  }
+});
+
+//------- edit expense modal --------
+const editModal = document.getElementById("editModal");
+const closeEditModalBtn = document.querySelector("#editModal .close");
+
+closeEditModalBtn.onclick = () => {
+  editModal.style.display = "none";
+};
+
+const editCategorySelector = document.getElementById("editCategory");
+labels.forEach((label) => {
+  const option = document.createElement("option");
+  option.value = label.toLowerCase();
+  option.textContent = label;
+  editCategorySelector.appendChild(option);
+});
+
+let editingExpenseItem; //variable for item after edit
+let editingExpenseIndex; // current index
+
+document.getElementById("expenseList").addEventListener("click", (e) => {
+  if (e.target && e.target.alt === "Edit") {
+    editModal.style.display = "block";
+
+    editingExpenseItem = e.target.closest("li");
+
+    const storedExpenses = JSON.parse(localStorage.getItem("expenses"));
+    const expenseList = Array.from(
+      document.querySelectorAll("#expenseList li")
+    );
+    editingExpenseIndex = expenseList.indexOf(editingExpenseItem);
+
+    const note = editingExpenseItem.querySelector("h3").textContent;
+    const date = editingExpenseItem.querySelector("p").textContent;
+    const price = editingExpenseItem
+      .querySelector("span")
+      .textContent.replace("$", "");
+    const categoryImage = editingExpenseItem.querySelector(
+      ".expense-content img[alt]"
+    ); 
+    const category = categoryImage ? categoryImage.alt.toLowerCase() : ""; 
+
+    document.getElementById("editDate").value = date;
+    document.getElementById("editPrice").value = parseFloat(price);
+    document.getElementById("editCategory").value = category; 
+    document.getElementById("editNote").value = note;
+  }
+});
+
+const modal = document.getElementById("addModal"); // refer to addModal
+
+//click the edit button
+document.getElementById("saveEditExpense").addEventListener("click", () => {
+  if (editingExpenseItem) {
+    const newDate = document.getElementById("editDate").value;
+    const newPrice = document.getElementById("editPrice").value;
+    const newCategory = document
+      .getElementById("editCategory")
+      .value.toLowerCase();
+    const newNote = document.getElementById("editNote").value;
+
+    // 기존 카테고리 클래스 제거
+    const oldCategory = editingExpenseItem.classList[1];
+    if (oldCategory) {
+      editingExpenseItem.classList.remove(oldCategory);
+    }
+
+    // 새 카테고리 클래스 추가 (빈 문자열이 아닌지 확인)
+    if (newCategory && newCategory.trim() !== "") {
+      editingExpenseItem.classList.add(newCategory);
+    } else {
+      console.error("유효하지 않은 카테고리입니다.");
+    }
+
+    // 3. 기존 HTML 구조는 유지하고 필요한 부분만 업데이트
+    // 제목, 날짜, 금액 업데이트
+    editingExpenseItem.querySelector("h3").textContent = newNote;
+    editingExpenseItem.querySelector("p").textContent = newDate;
+    editingExpenseItem.querySelector("span").textContent = `$${newPrice}`;
+
+    // 4. 카테고리 이미지 및 alt 속성 업데이트
+    const categoryImage = editingExpenseItem.querySelector(".category-image");
+    if (categoryImage) {
+      categoryImage.alt = newCategory.toLowerCase();
+      categoryImage.src = `./img/svg/${newCategory.toLowerCase()}.svg`; // 카테고리 이미지 업데이트
+    } else {
+      console.error("we can not find the category image");
+    }
+
+    // 5. 로컬 스토리지 업데이트
+    let storedExpenses = JSON.parse(localStorage.getItem("expenses"));
+    if (storedExpenses && storedExpenses[editingExpenseIndex]) {
+      storedExpenses[editingExpenseIndex] = {
+        date: newDate,
+        price: parseFloat(newPrice),
+        category: newCategory,
+        note: newNote,
+      };
+      localStorage.setItem("expenses", JSON.stringify(storedExpenses));
+      console.log(editingExpenseIndex);
+    } else {
+      console.error("we can not update the localstorage");
+    }
+
+    editModal.style.display = "none";
+    updateChart(myChart);
+  }
+});
 
 // Modal for Summary
 const sumModal = document.getElementById("sumModal");
@@ -192,15 +340,6 @@ sumBtn.onclick = () => {
 
 sumCloseBtn.onclick = () => {
   sumModal.style.display = "none";
-};
-
-window.onclick = (e) => {
-  if (e.target == modal) {
-    modal.style.display = "none";
-  }
-  if (e.target == sumModal) {
-    sumModal.style.display = "none";
-  }
 };
 
 // Category Selection

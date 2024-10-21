@@ -1,109 +1,161 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-    rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
 
-  <link rel="stylesheet" href="style.css">
+    <title>Expense Tracker</title>
+  </head>
 
-  <title>Expense Tracker</title>
-</head>
-
-<body>
-
-  <header>
-    <div class="container">
-      <h1>Expense Tracker</h1>
-      <nav>
-        <ul>
-          <li id="summary"><a href="#">Summaries</a></li>
-          <li><a href="#">Budget Limits</a></li>
-        </ul>
-      </nav>
-    </div>
-    <!-- Modal for Summary -->
-    <div id="sumModal" class="modal">
-      <div class="modal-content">
-        <span class="close">&times;</span>
-        <p id="category-text">Choose a category and Check how much you've spent</p>
-        <label for="category-summary">Category:</label>
-        <select id="category-summary" required>
-          <option value="default">Select</option>
-          <option value="dining">Dining</option>
-          <option value="entertainment">Entertainment</option>
-          <option value="groceries">Groceries</option>
-          <option value="healthcare">Healthcare</option>
-          <option value="rent">Rent</option>
-          <option value="shopping">Shopping</option>
-          <option value="transportation">Transportation</option>
-          <option value="etc">ETC</option>
-        </select>
-        <!-- Summary Info -->
-        <div id="expense-summary" class="summary-info">
-          
+  <body>
+    <header>
+      <div class="container">
+        <h1>Expense Tracker</h1>
+        <nav>
+          <ul>
+            <li id="summary"><a href="#">Summaries</a></li>
+            <li><a href="#">Budget Limits</a></li>
+          </ul>
+        </nav>
+      </div>
+      <!-- Modal for Summary -->
+      <div id="sumModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+          <p id="category-text">
+            Choose a category and Check how much you've spent
+          </p>
+          <label for="category-summary">Category:</label>
+          <select id="category-summary" required>
+            <option value="default">Select</option>
+            <option value="dining">Dining</option>
+            <option value="entertainment">Entertainment</option>
+            <option value="groceries">Groceries</option>
+            <option value="healthcare">Healthcare</option>
+            <option value="rent">Rent</option>
+            <option value="shopping">Shopping</option>
+            <option value="transportation">Transportation</option>
+            <option value="etc">ETC</option>
+          </select>
+          <!-- Summary Info -->
+          <div id="expense-summary" class="summary-info"></div>
         </div>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <main>
-    <div class="container">
-      <div class="expenses">
-        <h2>Expenses</h2>
-        <ul class="expenses-inner" id="expenseList">
-          <!-- Insert HTML for stored expense items from localStorage -->
-        </ul>
-        <button id="openModal">Add New Expense</button>
+    <main>
+      <div class="container">
+        <div class="expenses">
+          <h2>Expenses</h2>
+          <ul class="expenses-inner" id="expenseList">
+            <!-- Insert HTML for stored expense items from localStorage -->
+            <li class="expense dining">
+              <div class="expense-buttons">
+                <img src="img/svg/edit.svg" alt="Edit" class="edit-btn" />
+                <img src="img/svg/delete.svg" alt="Delete" />
+              </div>
+              <div>
+                <img src="img/svg/dining.svg" alt="${dining}" />
+                <div class="expense-content">
+                  <h3>~</h3>
+                  <p>2024-12-31</p>
+                </div>
+              </div>
+              <span>23.5</span>
+            </li>
+          </ul>
+          <button id="openModal">Add New Expense</button>
+        </div>
+        <div class="chart">
+          <h2>Chart</h2>
+          <canvas id="myChart"></canvas>
+        </div>
       </div>
-      <div class="chart">
-        <h2>Chart</h2>
-        <canvas id="myChart"></canvas>
+
+      <!-- add expense moddal -->
+      <div id="addModal" class="modal">
+        <div class="add-expense-modal-content">
+          <span class="close">&times;</span>
+
+          <div class="container-modal">
+            <div class="input-group">
+              <label for="date">Date</label>
+              <input type="date" id="date" name="date" />
+            </div>
+            <div class="input-group">
+              <label for="price">Amount</label>
+              <input
+                type="number"
+                id="price"
+                name="price"
+                placeholder="Enter amount"
+                min="1"
+              />
+            </div>
+            <div class="input-group">
+              <label for="category">Category</label>
+              <select id="category" name="category"></select>
+            </div>
+            <div class="input-group">
+              <label for="note">Note</label>
+              <input type="text" id="note" name="note" placeholder="Note" />
+            </div>
+            <div class="buttons">
+              <button id="saveExpense" class="btn save">Save</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+      <!-- Edit expense modal -->
+      <div id="editModal" class="editmodal">
+        <div class="add-expense-modal-content">
+          <span class="close">&times;</span>
 
-    <!-- add expense moddal -->
-  <div id="Modal" class="modal">
-    <div class="add-expense-modal-content">
-      <span class="close">&times;</span>
-      <div class="container-modal">
-        <div class="input-group">
-            <label for="date">Date</label>
-            <input type="date" id="date" name="date" >
+          <div class="container-modal">
+            <div class="input-group">
+              <label for="editDate">Date</label>
+              <input type="date" id="editDate" name="date" />
+            </div>
+
+            <div class="input-group">
+              <label for="editPrice">Amount</label>
+              <input
+                type="number"
+                id="editPrice"
+                name="price"
+                placeholder="Enter amount"
+                min="1"
+              />
+            </div>
+
+            <div class="input-group">
+              <label for="editCategory">Category</label>
+              <select id="editCategory" name="category"></select>
+            </div>
+
+            <div class="input-group">
+              <label for="editNote">Note</label>
+              <input type="text" id="editNote" name="note" placeholder="Note" />
+            </div>
+            <div class="buttons">
+              <button id="saveEditExpense" class="btn save">Edit the expense</button>
+
+            </div>
+          </div>
         </div>
-        <div class="input-group">
-            <label for="price">Amount</label>
-            <input type="number" id="price" name="price" placeholder="Enter amount" min="1">
-        </div>
-        <div class="input-group">
-            <label for="category">Category</label>
-            <select id="category" name="category">
-            </select>
-        </div>
-        <div class="input-group">
-            <label for="note">Note</label>
-            <input type="text" id="note" name="note" placeholder="Note">
-        </div>
-        <div class="buttons">
-            <button id="saveExpense" class="btn save">Save</button>
-        </div>
-    </div>
-  </div>
+      </div>
+    </main>
 
-  
-
-
-  </main>
-
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="script.js"></script>
-
-</body>
-
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+  </body>
 </html>
