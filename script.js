@@ -332,15 +332,87 @@ document.getElementById("saveEditExpense").addEventListener("click", () => {
 // Modal for Summary
 const sumModal = document.getElementById("sumModal");
 const sumBtn = document.getElementById("summary");
-const sumCloseBtn = document.querySelector("#sumModal .close");
+const sumCloseBtn = document.querySelector("#sumModal .sumClose");
 
 sumBtn.onclick = () => {
   sumModal.style.display = "block";
+  updatePieChart();
 };
 
 sumCloseBtn.onclick = () => {
   sumModal.style.display = "none";
 };
+
+window.onclick = (e) => {
+  if (e.target == modal) {
+    modal.style.display = "none";
+  }
+  if (e.target == sumModal) {
+    sumModal.style.display = "none";
+  }
+};
+
+// Pie chart Setting
+const categories = ["dining", "entertainment", "groceries", "healthcare", "rent", "shopping", "transportation", "etc"];
+var expenseChartCtx = document.getElementById("expenseChart").getContext("2d");
+var expenseChart; // variable for chart
+
+function calculateCategoryTotals() {
+  const categoryTotals = {};
+  categories.forEach(category => {
+    const expenseItems = document.querySelectorAll(`li.expense.${category}`);
+    let categoryTotal = 0;
+
+    expenseItems.forEach(function (expenseItem) {
+      const amount = expenseItem.querySelector("span").textContent;
+      const sumPrice = parseFloat(amount.replace("$", ""));
+      categoryTotal += sumPrice;
+    });
+
+    categoryTotals[category] = categoryTotal;
+  });
+
+  return categoryTotals;
+}
+
+// Create or Update Chart
+function updatePieChart() {
+  const categoryTotals = calculateCategoryTotals();
+  const chartLabels = categories.map(category => category.charAt(0).toUpperCase() + category.slice(1));
+  const chartData = categories.map(category => categoryTotals[category]);
+
+  if (expenseChart) {
+    expenseChart.destroy();
+  }
+
+  // new chart
+  expenseChart = new Chart(expenseChartCtx, {
+    type: "pie",
+    data: {
+      labels: chartLabels,
+      datasets: [{
+        data: chartData,
+        backgroundColor: ["red", "blue", "green", "yellow", "orange", "purple", "pink", "grey"],
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: "top",
+        },
+        title: {
+          display: true,
+          text: 'Category-wise Expense Distribution',
+          color: 'black',
+          font: {
+            size: 48
+          }
+        }
+      }
+    }
+  });
+}
 
 // Category Selection
 var sumCategory = document.getElementById("category-summary");
@@ -387,3 +459,169 @@ sumCategory.addEventListener("change", function () {
     }
   }
 });
+
+
+// Monthly Summary Modal
+// List
+// Month Selection
+var monthSelector = document.getElementById("month-selector");
+var monthlySummaryContainer = document.getElementById("monthly-expenses");
+
+monthSelector.addEventListener("change", function () {
+  var selectedMonth = monthSelector.value;
+  console.log("Selected month:", selectedMonth);
+
+  const monthlyItems = document.querySelectorAll("#expenseList .expense");
+
+  // remove previous infos
+  monthlySummaryContainer.innerHTML = "";
+
+  let totalAmount = 0;
+
+  if (selectedMonth !== "default") {
+    monthlyItems.forEach(function (monthlyItem) {
+      const title = monthlyItem.querySelector("h3").textContent;
+      const date = monthlyItem.querySelector("p").textContent;
+      const amount = monthlyItem.querySelector("span").textContent;
+      // console.log(title, date, amount);
+
+      // extract specific month
+      const month = date.split('-')[1];
+      // console.log(month, typeof month);
+
+      if (month === selectedMonth) {
+        const expenseDiv = document.createElement("div");
+        expenseDiv.innerHTML = `<span>${date} ${title} ${amount}</span>`;
+        monthlySummaryContainer.appendChild(expenseDiv);
+
+        // price
+        const sumPrice = parseFloat(amount.replace("$", ""));
+        totalAmount += sumPrice;
+      }
+    });
+
+    // Total amount display
+    const totalDiv = document.createElement("div");
+    totalDiv.classList.add("total-amount");
+    totalDiv.innerHTML = `<hr> <h3>Total: $${totalAmount.toFixed(2)}</h3>`;
+    monthlySummaryContainer.appendChild(totalDiv);
+  } else {
+    if (selectedMonth != "default") {
+      const noExpensesDiv = document.createElement("div");
+      noExpensesDiv.textContent = "No expenses for this month";
+      monthlySummaryContainer.appendChild(noExpensesDiv);
+    }
+  }
+});
+
+
+
+
+// bar chart
+const monthlySummaryModal = document.getElementById("monthlySummaryModal");
+const openMonthlyBtn = document.getElementById("monthly");
+const closeMonthlyBtn = document.getElementById("close-monthly");
+
+// Open
+openMonthlyBtn.onclick = function () {
+  monthlySummaryModal.style.display = "block";
+  updateMonthlyBarChart();
+}
+
+// Close
+closeMonthlyBtn.onclick = function () {
+  monthlySummaryModal.style.display = "none";
+}
+
+window.onclick = function (event) {
+  if (event.target === monthlySummaryModal) {
+    monthlySummaryModal.style.display = "none";
+  }
+}
+
+// Create or Update Bar Chart
+let monthlyExpenseChart;
+
+function updateMonthlyBarChart() {
+  const monthlyTotals = calculateMonthlyTotals();
+  const months = Object.keys(monthlyTotals);
+  const chartData = Object.values(monthlyTotals);
+
+  const ctx = document.getElementById('monthlyExpenseChart').getContext('2d');
+
+  if (monthlyExpenseChart) {
+    monthlyExpenseChart.destroy();
+  }
+
+  monthlyExpenseChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: months,
+      datasets: [{
+        label: 'Monthly Expenses',
+        data: chartData,
+        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        borderColor: 'rgba(54, 162, 235, 1)',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 3000,
+          title: {
+            display: true,
+            text: 'Expense Amount ($)',
+            font: {
+              size: 16,
+            },
+            ticks: {
+              stepSize: 100,
+              callback: function (value) {
+                return value.toLocaleString();
+              }
+            }
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          display: true
+        },
+        title: {
+          display: true,
+          text: 'Monthly Expense Summary',
+          font: {
+            size: 20,
+            family: 'Arial'
+          },
+          color: '#000'
+        }
+      }
+    }
+  });
+}
+
+// Function to calculate totals per month
+function calculateMonthlyTotals() {
+  const monthlyTotals = {
+    January: 0, February: 0, March: 0, April: 0,
+    May: 0, June: 0, July: 0, August: 0,
+    September: 0, October: 0, November: 0, December: 0
+  };
+
+  const expenseItems = document.querySelectorAll('li.expense');
+
+  expenseItems.forEach(function (expenseItem) {
+    const dateText = expenseItem.querySelector("p").textContent;
+    const month = new Date(dateText).toLocaleString('default', { month: 'long' });
+    const amount = parseFloat(expenseItem.querySelector("span").textContent.replace("$", ""));
+
+    if (monthlyTotals[month] !== undefined) {
+      monthlyTotals[month] += amount;
+    }
+  });
+
+  return monthlyTotals;
+}

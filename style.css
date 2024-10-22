@@ -105,7 +105,8 @@ main {
         &.transportation {
           background: linear-gradient(to bottom right, #a2ff98, #ffffff);
         }
-        &.etc{
+
+        &.etc {
           background: linear-gradient(to bottom right, #a6a6a6, #ffffff)
         }
 
@@ -164,7 +165,7 @@ main {
       padding-top: 20px;
     }
   }
-   
+
 }
 
 
@@ -177,10 +178,10 @@ main {
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); 
+  background-color: rgba(0, 0, 0, 0.5);
 }
 
-.add-expense-modal-content{
+.add-expense-modal-content {
   background-color: white;
   margin: 15% auto;
   padding: 20px;
@@ -213,40 +214,43 @@ main {
   margin-bottom: 5px;
 }
 
-.input-group input, .input-group select {
+.input-group input,
+.input-group select {
   width: 100%;
   padding: 10px;
   border: none;
   border-radius: 5px;
   font-size: 16px;
 }
+
 .buttons {
-display: flex;
-justify-content: space-between;
+  display: flex;
+  justify-content: space-between;
 }
 
 .btn {
-padding: 10px 20px;
-border: none;
-border-radius: 5px;
-font-size: 16px;
-cursor: pointer;
-flex: 1;
-margin: 5px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  flex: 1;
+  margin: 5px;
 }
 
 .btn.save {
-background-color: #f56363;
-color: #fff;
+  background-color: #f56363;
+  color: #fff;
 }
+
 .container-modaler {
-padding: 20px;
-max-width: 400px;
-margin: auto;
+  padding: 20px;
+  max-width: 400px;
+  margin: auto;
 }
 
 /* Modal for Summary */
-/* .modal {
+.sumModal {
   display: none;
   position: fixed;
   z-index: 1;
@@ -255,49 +259,55 @@ margin: auto;
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.5);
-} */
+}
 
 .modal-content {
   background-color: white;
   margin: 5% auto;
   padding: 10%;
   border: 1px solid #888;
-  width: 80%;
-  height: 90%;
+  width: 70%;
+  height: 84%;
   overflow-y: scroll;
   position: relative;
 }
 
-/* .close {
+.sumClose {
   color: #aaa;
   float: right;
   font-size: 2rem;
   font-weight: bold;
   position: absolute;
   top: 20px;
-  right: 30px
+  right: 30px;
 }
 
-.close:hover,
+.sumClose:hover,
 .close:focus {
   color: black;
   text-decoration: none;
   cursor: pointer;
-} */
+}
 
-#category-text {
+#category-text,
+#month-text {
   font-size: 1.6rem;
   font-weight: bold;
   margin-bottom: 5%;
 }
 
 /* Summary info */
+#expense-summary,
+#monthly-expenses {
+  margin-bottom: 20vh;
+}
+
 .summary-info {
   margin-top: 5%;
 }
 
 .expense-item {
-  margin: 300px auto;
+  margin: 30px auto;
 }
 
 .total-amount {
@@ -306,5 +316,6 @@ margin: auto;
 }
 
 .total-amount hr {
+  margin-top: 10%;
   margin-bottom: 10px;
 }

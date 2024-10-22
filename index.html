@@ -11,46 +11,81 @@
       rel="stylesheet"
     />
 
-    <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
+  <title>Expense Tracker</title>
+</head>
 
-    <title>Expense Tracker</title>
-  </head>
+<body>
 
-  <body>
-    <header>
-      <div class="container">
-        <h1>Expense Tracker</h1>
-        <nav>
-          <ul>
-            <li id="summary"><a href="#">Summaries</a></li>
-            <li><a href="#">Budget Limits</a></li>
-          </ul>
-        </nav>
-      </div>
-      <!-- Modal for Summary -->
-      <div id="sumModal" class="modal">
-        <div class="modal-content">
-          <span class="close">&times;</span>
-          <p id="category-text">
-            Choose a category and Check how much you've spent
-          </p>
-          <label for="category-summary">Category:</label>
-          <select id="category-summary" required>
-            <option value="default">Select</option>
-            <option value="dining">Dining</option>
-            <option value="entertainment">Entertainment</option>
-            <option value="groceries">Groceries</option>
-            <option value="healthcare">Healthcare</option>
-            <option value="rent">Rent</option>
-            <option value="shopping">Shopping</option>
-            <option value="transportation">Transportation</option>
-            <option value="etc">ETC</option>
-          </select>
-          <!-- Summary Info -->
-          <div id="expense-summary" class="summary-info"></div>
+  <header>
+    <div class="container">
+      <h1>Expense Tracker</h1>
+      <nav>
+        <ul>
+          <li id="summary"><a href="#">Summary by Category</a></li>
+          <li id="monthly"><a href="#">Summary by Month</a></li>
+          <li><a href="#">Budget Limits</a></li>
+        </ul>
+      </nav>
+    </div>
+    <!-- Modal for Category Summary -->
+    <div id="sumModal" class="sumModal">
+      <div class="modal-content">
+        <span class="sumClose">&times;</span>
+        <p id="category-text">Choose a category and Check how much you've spent</p>
+        <label for="category-summary">Category:</label>
+        <select id="category-summary" required>
+          <option value="default">Select</option>
+          <option value="dining">Dining</option>
+          <option value="entertainment">Entertainment</option>
+          <option value="groceries">Groceries</option>
+          <option value="healthcare">Healthcare</option>
+          <option value="rent">Rent</option>
+          <option value="shopping">Shopping</option>
+          <option value="transportation">Transportation</option>
+          <option value="etc">ETC</option>
+        </select>
+        <!-- Summary Info -->
+        <div id="expense-summary" class="summary-info">
+
+        </div>
+        <!-- Visualization -->
+        <div>
+          <canvas id="expenseChart"></canvas>
         </div>
       </div>
-    </header>
+    </div>
+
+    <!-- Modal for Monthly Summary -->
+    <div id="monthlySummaryModal" class="sumModal">
+      <div class="modal-content">
+        <span id="close-monthly" class="sumClose">&times;</span>
+        <!-- month selector -->
+        <p id="month-text">Select a month and Check how much you've spent</p>
+        <label for="month-selector">Select Month:</label>
+        <select id="month-selector">
+          <option value="default">Select</option>
+          <option value="01">January</option>
+          <option value="02">February</option>
+          <option value="03">March</option>
+          <option value="04">April</option>
+          <option value="05">May</option>
+          <option value="06">June</option>
+          <option value="07">July</option>
+          <option value="08">August</option>
+          <option value="09">September</option>
+          <option value="10">October</option>
+          <option value="11">November</option>
+          <option value="12">December</option>
+        </select>
+        <div id="monthly-expenses" class="monthly-expenses">
+
+        </div>
+        <!-- Visualiztion -->
+        <canvas id="monthlyExpenseChart"></canvas>
+      </div>
+    </div>
+  </header>
 
     <main>
       <div class="container">
