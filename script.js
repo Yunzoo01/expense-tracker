@@ -84,9 +84,8 @@ const loadExpenses = () => {
           <img src="img/svg/delete.svg" alt="Delete">
         </div>
         <div>
-          <img class="category-image" src="img/svg/${
-            expense.category
-          }.svg" alt="${expense.category}">
+          <img class="category-image" src="img/svg/${expense.category
+        }.svg" alt="${expense.category}">
           <div class="expense-content">
             <h3>${expense.note ? expense.note : "Unnamed Expense"}</h3>
             <p>${expense.date}</p>
@@ -192,7 +191,7 @@ document.getElementById("expenseList").addEventListener("click", (e) => {
         category = categoryImage.alt.toLowerCase();
       } else {
         console.error("There is no category image");
-        return; 
+        return;
       }
 
       const date = expenseItem.querySelector("p").textContent;
@@ -259,12 +258,12 @@ document.getElementById("expenseList").addEventListener("click", (e) => {
       .textContent.replace("$", "");
     const categoryImage = editingExpenseItem.querySelector(
       ".expense-content img[alt]"
-    ); 
-    const category = categoryImage ? categoryImage.alt.toLowerCase() : ""; 
+    );
+    const category = categoryImage ? categoryImage.alt.toLowerCase() : "";
 
     document.getElementById("editDate").value = date;
     document.getElementById("editPrice").value = parseFloat(price);
-    document.getElementById("editCategory").value = category; 
+    document.getElementById("editCategory").value = category;
     document.getElementById("editNote").value = note;
   }
 });
@@ -336,6 +335,8 @@ const sumCloseBtn = document.querySelector("#sumModal .sumClose");
 
 sumBtn.onclick = () => {
   sumModal.style.display = "block";
+  sumCategory.value = "default";
+  expenseSummaryContainer.innerHTML = `<div> </div>`;
   updatePieChart();
 };
 
@@ -349,6 +350,9 @@ window.onclick = (e) => {
   }
   if (e.target == sumModal) {
     sumModal.style.display = "none";
+  }
+  if (e.target === monthlySummaryModal) {
+    monthlySummaryModal.style.display = "none";
   }
 };
 
@@ -391,22 +395,37 @@ function updatePieChart() {
     data: {
       labels: chartLabels,
       datasets: [{
+        label: 'Expenditures',
         data: chartData,
-        backgroundColor: ["red", "blue", "green", "yellow", "orange", "purple", "pink", "grey"],
+        backgroundColor: [
+          "#abf5fa",
+          "#d9abfa",
+          "#fff698",
+          "#ff9898",
+          "#98c6ff",
+          "#ffc398",
+          "#a2ff98",
+          "#a6a6a6",
+        ],
       }]
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
+      aspectRatio: 0.7,
       plugins: {
         legend: {
-          position: "top",
+          position: "top"
         },
         title: {
           display: true,
           text: 'Category-wise Expense Distribution',
           color: 'black',
           font: {
-            size: 48
+            size: 26
+          },
+          padding: {
+            bottom: 10
           }
         }
       }
@@ -422,47 +441,81 @@ sumCategory.addEventListener("change", function () {
   var selectedCategory = sumCategory.value;
   console.log("Selected category:", selectedCategory);
 
-  const expenseItems = document.querySelectorAll(
-    `li.expense.${selectedCategory}`
-  );
+  updateExpenseSummary(selectedCategory, expenseSummaryContainer);
+});
 
-  // remove previous infos
-  expenseSummaryContainer.innerHTML = "";
+function updateExpenseSummary(selectedCategory, summaryContainer) {
+  const expenseItems = document.querySelectorAll(`li.expense.${selectedCategory}`);
+
+  // Remove previous infos
+  summaryContainer.innerHTML = "";
 
   let sumTotalAmount = 0;
 
   if (expenseItems.length > 0) {
+    const expenseData = [];
+
+    // Collect data into an array
     expenseItems.forEach(function (expenseItem) {
       const title = expenseItem.querySelector("h3").textContent;
       const date = expenseItem.querySelector("p").textContent;
       const amount = expenseItem.querySelector("span").textContent;
 
-      const expenseDiv = document.createElement("div");
-      expenseDiv.classList.add("expense-item");
-      expenseDiv.innerHTML = `<span>${date} ${title} ${amount}</span>`;
-      expenseSummaryContainer.appendChild(expenseDiv);
+      // Push data to expenseData array
+      expenseData.push({ date, title, amount });
+    });
 
-      // price
-      const sumPrice = parseFloat(amount.replace("$", ""));
+    // Sort expenseData by date in ascending order
+    expenseData.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    // Create the table
+    const table = document.createElement("table");
+    table.classList.add("expense-table");
+
+    // Create table headers
+    const headerRow = document.createElement("tr");
+    headerRow.innerHTML = `
+      <th>Date</th>
+      <th>Title</th>
+      <th>Amount</th>
+    `;
+    table.appendChild(headerRow);
+
+    // Append sorted data to the table
+    expenseData.forEach(function (expense) {
+      const expenseRow = document.createElement("tr");
+      expenseRow.innerHTML = `
+        <td>${expense.date}</td>
+        <td>${expense.title}</td>
+        <td>${expense.amount}</td>
+      `;
+      table.appendChild(expenseRow);
+
+      // Calculate total amount
+      const sumPrice = parseFloat(expense.amount.replace("$", ""));
       sumTotalAmount += sumPrice;
     });
+
+    summaryContainer.appendChild(table);
+
+    // Total amount display
     const totalDiv = document.createElement("div");
     totalDiv.classList.add("total-amount");
-    totalDiv.innerHTML = `<hr> <h3>Total: $${sumTotalAmount.toFixed(2)}</h3>`;
-    expenseSummaryContainer.appendChild(totalDiv);
+    totalDiv.innerHTML = `<hr> <h3>You've spent <i>$${sumTotalAmount.toFixed(2)}</i> on <i>${selectedCategory}</i> so far.</h3>`;
+    summaryContainer.appendChild(totalDiv);
   } else {
-    if (selectedCategory != "default") {
-      // when no items in a category
+    if (selectedCategory !== "default") {
+      // When no items in a category
       const noExpensesDiv = document.createElement("div");
-      noExpensesDiv.textContent = "No expenses for this category";
-      expenseSummaryContainer.appendChild(noExpensesDiv);
+      noExpensesDiv.innerHTML = `<h4>No expenses for this category</h4>`;
+      summaryContainer.appendChild(noExpensesDiv);
     }
   }
-});
+}
+
 
 
 // Monthly Summary Modal
-// List
 // Month Selection
 var monthSelector = document.getElementById("month-selector");
 var monthlySummaryContainer = document.getElementById("monthly-expenses");
@@ -473,46 +526,120 @@ monthSelector.addEventListener("change", function () {
 
   const monthlyItems = document.querySelectorAll("#expenseList .expense");
 
-  // remove previous infos
+  // Remove previous infos
   monthlySummaryContainer.innerHTML = "";
 
   let totalAmount = 0;
 
   if (selectedMonth !== "default") {
+    // Create an array to hold the expense data
+    const expensesArray = [];
+
     monthlyItems.forEach(function (monthlyItem) {
       const title = monthlyItem.querySelector("h3").textContent;
       const date = monthlyItem.querySelector("p").textContent;
       const amount = monthlyItem.querySelector("span").textContent;
-      // console.log(title, date, amount);
 
-      // extract specific month
+      // Extract specific month
       const month = date.split('-')[1];
-      // console.log(month, typeof month);
 
       if (month === selectedMonth) {
-        const expenseDiv = document.createElement("div");
-        expenseDiv.innerHTML = `<span>${date} ${title} ${amount}</span>`;
-        monthlySummaryContainer.appendChild(expenseDiv);
-
-        // price
-        const sumPrice = parseFloat(amount.replace("$", ""));
-        totalAmount += sumPrice;
+        expensesArray.push({
+          date: date,
+          title: title,
+          amount: amount,
+        });
       }
     });
 
-    // Total amount display
-    const totalDiv = document.createElement("div");
-    totalDiv.classList.add("total-amount");
-    totalDiv.innerHTML = `<hr> <h3>Total: $${totalAmount.toFixed(2)}</h3>`;
-    monthlySummaryContainer.appendChild(totalDiv);
-  } else {
-    if (selectedMonth != "default") {
+    // Sort the expenses by date in ascending order
+    expensesArray.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    if (expensesArray.length > 0) {
+      // Create a table element
+      const table = document.createElement("table");
+      table.classList.add("expense-table");
+
+      // Create table headers
+      const headerRow = document.createElement("tr");
+      headerRow.innerHTML = `
+        <th>Date</th>
+        <th>Title</th>
+        <th>Amount</th>
+      `;
+      table.appendChild(headerRow);
+
+      // Populate the table with the sorted expenses
+      expensesArray.forEach(expense => {
+        const expenseRow = document.createElement("tr");
+        expenseRow.innerHTML = `
+          <td>${expense.date}</td>
+          <td>${expense.title}</td>
+          <td>${expense.amount}</td>
+        `;
+        table.appendChild(expenseRow);
+
+        // Calculate total amount
+        const sumPrice = parseFloat(expense.amount.replace("$", ""));
+        totalAmount += sumPrice;
+      });
+
+      // Append the table to the summary container
+      monthlySummaryContainer.appendChild(table);
+
+      // Convert Months
+      let translatedMonth = '';
+      if (selectedMonth == '01') {
+        translatedMonth = 'January';
+      }
+      else if (selectedMonth == '02') {
+        translatedMonth = 'Feburary';
+      }
+      else if (selectedMonth == '03') {
+        translatedMonth = 'March';
+      }
+      else if (selectedMonth == '04') {
+        translatedMonth = 'April';
+      }
+      else if (selectedMonth == '05') {
+        translatedMonth = 'May';
+      }
+      else if (selectedMonth == '06') {
+        translatedMonth = 'June';
+      }
+      else if (selectedMonth == '07') {
+        translatedMonth = 'July';
+      }
+      else if (selectedMonth == '08') {
+        translatedMonth = 'August';
+      }
+      else if (selectedMonth == '09') {
+        translatedMonth = 'September';
+      }
+      else if (selectedMonth == '10') {
+        translatedMonth = 'October';
+      }
+      else if (selectedMonth == '11') {
+        translatedMonth = 'November';
+      }
+      else if (selectedMonth == '12') {
+        translatedMonth = 'December';
+      }
+
+      // Total amount display
+      const totalDiv = document.createElement("div");
+      totalDiv.classList.add("total-amount");
+      totalDiv.innerHTML = `<hr> <h3>You spent <i>$${totalAmount.toFixed(2)}</i> in <i>${translatedMonth}</i>.</h3>`;
+      monthlySummaryContainer.appendChild(totalDiv);
+    } else {
+      // If no expenses for the selected month, display a message
       const noExpensesDiv = document.createElement("div");
-      noExpensesDiv.textContent = "No expenses for this month";
+      noExpensesDiv.innerHTML = `<h4>No expenses for this month</h4>`;
       monthlySummaryContainer.appendChild(noExpensesDiv);
     }
   }
 });
+
 
 
 
@@ -525,18 +652,14 @@ const closeMonthlyBtn = document.getElementById("close-monthly");
 // Open
 openMonthlyBtn.onclick = function () {
   monthlySummaryModal.style.display = "block";
+  monthSelector.value = "default";
+  monthlySummaryContainer.innerHTML = `<div> </div>`;
   updateMonthlyBarChart();
 }
 
 // Close
 closeMonthlyBtn.onclick = function () {
   monthlySummaryModal.style.display = "none";
-}
-
-window.onclick = function (event) {
-  if (event.target === monthlySummaryModal) {
-    monthlySummaryModal.style.display = "none";
-  }
 }
 
 // Create or Update Bar Chart
@@ -566,10 +689,12 @@ function updateMonthlyBarChart() {
       }]
     },
     options: {
+      responsive: true,
+      maintainAspectRatio: false,
       scales: {
         y: {
           beginAtZero: true,
-          max: 3000,
+          max: 1000,
           title: {
             display: true,
             text: 'Expense Amount ($)',

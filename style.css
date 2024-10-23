@@ -170,8 +170,9 @@ main {
 
 
 /* 기본 모달 스타일 */
-.modal, .editmodal {
-  display: none; 
+.modal,
+.editmodal {
+  display: none;
   position: fixed;
   z-index: 100;
   left: 0;
@@ -183,12 +184,12 @@ main {
 
 .add-expense-modal-content {
   background-color: white;
-  margin: 15% auto;
+  margin: 10% auto;
   padding: 20px;
   border: 1px solid #888;
   width: 80%;
   max-width: 500px;
-  
+
 }
 
 .close {
@@ -294,6 +295,12 @@ main {
   font-size: 1.6rem;
   font-weight: bold;
   margin-bottom: 5%;
+  text-align: center;
+}
+
+#category-summary select,
+#month-selector select {
+  text-align: center;
 }
 
 /* Summary info */
@@ -310,9 +317,32 @@ main {
   margin: 30px auto;
 }
 
+.expense-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.expense-table th,
+.expense-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.expense-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
 .total-amount {
+  font-weight: bold;
   position: relative;
   bottom: 10%;
+}
+
+.total-amount i {
+  color: blue;
 }
 
 .total-amount hr {
