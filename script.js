@@ -84,8 +84,9 @@ const loadExpenses = () => {
           <img src="img/svg/delete.svg" alt="Delete">
         </div>
         <div>
-          <img class="category-image" src="img/svg/${expense.category
-        }.svg" alt="${expense.category}">
+          <img class="category-image" src="img/svg/${
+            expense.category
+          }.svg" alt="${expense.category}">
           <div class="expense-content">
             <h3>${expense.note ? expense.note : "Unnamed Expense"}</h3>
             <p>${expense.date}</p>
@@ -129,95 +130,97 @@ labels.forEach((label) => {
 //save button click
 document.getElementById("saveExpense").addEventListener("click", () => {
   const date = document.getElementById("date").value;
-  const price = document.getElementById("price").value;
+  const price = parseFloat(document.getElementById("price").value);
   const category = document.getElementById("category").value;
   const note = document.getElementById("note").value;
 
-  let storedExpenses = localStorage.getItem("expenses");
-  storedExpenses = storedExpenses ? JSON.parse(storedExpenses) : [];
+  if (checkBudgetLimit(category, price)) {
+    return; // Stop adding if over budget
+  }
+
+  let storedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
 
   if (date && price && category) {
-    const expenseData = {
-      date: date,
-      price: parseFloat(price),
-      category: category,
-      note: note,
-    };
-
+    const expenseData = { date, price, category, note };
     storedExpenses.push(expenseData);
     localStorage.setItem("expenses", JSON.stringify(storedExpenses));
 
-    // add expense to HTML
-    const expenseList = document.getElementById("expenseList");
-    const li = document.createElement("li");
-    li.classList.add("expense", category);
-
-    li.innerHTML = `
-      <div class="expense-buttons">
-        <img src="img/svg/edit.svg" alt="Edit">
-        <img src="img/svg/delete.svg" alt="Delete">
-      </div>
-      <div>
-        <img class="category-image" src="img/svg/${category}.svg" alt="${category}">
-        <div class="expense-content">
-          <h3>${note ? note : "Unnamed Expense"}</h3>
-          <p>${date}</p>
-        </div>
-      </div>
-      <span>$${price}</span>
-    `;
-    expenseList.appendChild(li);
-
-    modal.style.display = "none";
-
-    document.getElementById("date").value = "";
-    document.getElementById("price").value = "";
-    document.getElementById("category").value = "";
-    document.getElementById("note").value = "";
-
+    addExpenseToList(category, date, price, note);
     updateChart(myChart);
   }
 });
+
+function addExpenseToList(category, date, price, note) {
+  const expenseList = document.getElementById("expenseList");
+  const li = document.createElement("li");
+  li.classList.add("expense", category);
+
+  li.innerHTML = `
+      <div class="expense-buttons">
+          <img src="img/svg/edit.svg" alt="Edit">
+          <img src="img/svg/delete.svg" alt="Delete">
+      </div>
+      <div>
+          <img class="category-image" src="img/svg/${category}.svg" alt="${category}">
+          <div class="expense-content">
+              <h3>${note || "Unnamed Expense"}</h3>
+              <p>${date}</p>
+          </div>
+      </div>
+      <span>$${price}</span>
+  `;
+  expenseList.appendChild(li);
+}
 
 //------- delete expense modal -------
 document.getElementById("expenseList").addEventListener("click", (e) => {
   if (e.target && e.target.alt === "Delete") {
     const expenseItem = e.target.closest("li");
+    const category = expenseItem.classList[1];
+    const price = parseFloat(
+      expenseItem.querySelector("span").textContent.replace("$", "")
+    );
 
-    if (expenseItem) {
-      const categoryImage = expenseItem.querySelector(".category-image");
-      let category = "";
-      if (categoryImage) {
-        category = categoryImage.alt.toLowerCase();
-      } else {
-        console.error("There is no category image");
-        return;
-      }
+    let storedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
+    storedExpenses = storedExpenses.filter(
+      (exp) => !(exp.category === category && exp.price === price)
+    );
+    localStorage.setItem("expenses", JSON.stringify(storedExpenses));
 
-      const date = expenseItem.querySelector("p").textContent;
-      const price = parseFloat(
-        expenseItem.querySelector("span").textContent.replace("$", "")
-      );
-
-      const storedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
-
-      const expenseIndex = storedExpenses.findIndex(
-        (expense) =>
-          expense.date === date &&
-          expense.price === price &&
-          expense.category.toLowerCase() === category
-      );
-
-      if (expenseIndex > -1) {
-        storedExpenses.splice(expenseIndex, 1);
-        localStorage.setItem("expenses", JSON.stringify(storedExpenses));
-
-        expenseItem.remove();
-
-        updateChart(myChart);
-      }
-    }
+    expenseItem.remove();
+    updateChart(myChart);
   }
+});
+
+const budgets = JSON.parse(localStorage.getItem("budgets")) || {};
+
+function checkBudgetLimit(category, newExpense) {
+  const storedExpenses = JSON.parse(localStorage.getItem("expenses")) || [];
+  const totalSpent = storedExpenses
+    .filter((exp) => exp.category === category)
+    .reduce((sum, exp) => sum + exp.price, 0);
+
+  const newTotal = totalSpent + newExpense;
+
+  if (budgets[category] && newTotal > budgets[category]) {
+    window.alert(`Budget exceeded for ${category}!`);
+    return true;
+  }
+  return false;
+}
+
+document.getElementById("save-budget").addEventListener("click", () => {
+  const category = document.getElementById("budget-selector").value;
+  const budget = parseFloat(document.getElementById("budget-input").value);
+
+  if (category === "default" || isNaN(budget)) {
+    window.alert("Please select a valid category and enter a budget.");
+    return;
+  }
+
+  budgets[category] = budget;
+  localStorage.setItem("budgets", JSON.stringify(budgets));
+  window.alert(`Budget for ${category} set to $${budget}.`);
 });
 
 //------- edit expense modal --------
@@ -357,13 +360,22 @@ window.onclick = (e) => {
 };
 
 // Pie chart Setting
-const categories = ["dining", "entertainment", "groceries", "healthcare", "rent", "shopping", "transportation", "etc"];
+const categories = [
+  "dining",
+  "entertainment",
+  "groceries",
+  "healthcare",
+  "rent",
+  "shopping",
+  "transportation",
+  "etc",
+];
 var expenseChartCtx = document.getElementById("expenseChart").getContext("2d");
 var expenseChart; // variable for chart
 
 function calculateCategoryTotals() {
   const categoryTotals = {};
-  categories.forEach(category => {
+  categories.forEach((category) => {
     const expenseItems = document.querySelectorAll(`li.expense.${category}`);
     let categoryTotal = 0;
 
@@ -382,8 +394,10 @@ function calculateCategoryTotals() {
 // Create or Update Chart
 function updatePieChart() {
   const categoryTotals = calculateCategoryTotals();
-  const chartLabels = categories.map(category => category.charAt(0).toUpperCase() + category.slice(1));
-  const chartData = categories.map(category => categoryTotals[category]);
+  const chartLabels = categories.map(
+    (category) => category.charAt(0).toUpperCase() + category.slice(1)
+  );
+  const chartData = categories.map((category) => categoryTotals[category]);
 
   if (expenseChart) {
     expenseChart.destroy();
@@ -394,20 +408,22 @@ function updatePieChart() {
     type: "pie",
     data: {
       labels: chartLabels,
-      datasets: [{
-        label: 'Expenditures',
-        data: chartData,
-        backgroundColor: [
-          "#abf5fa",
-          "#d9abfa",
-          "#fff698",
-          "#ff9898",
-          "#98c6ff",
-          "#ffc398",
-          "#a2ff98",
-          "#a6a6a6",
-        ],
-      }]
+      datasets: [
+        {
+          label: "Expenditures",
+          data: chartData,
+          backgroundColor: [
+            "#abf5fa",
+            "#d9abfa",
+            "#fff698",
+            "#ff9898",
+            "#98c6ff",
+            "#ffc398",
+            "#a2ff98",
+            "#a6a6a6",
+          ],
+        },
+      ],
     },
     options: {
       responsive: true,
@@ -415,21 +431,21 @@ function updatePieChart() {
       aspectRatio: 0.7,
       plugins: {
         legend: {
-          position: "top"
+          position: "top",
         },
         title: {
           display: true,
-          text: 'Category-wise Expense Distribution',
-          color: 'black',
+          text: "Category-wise Expense Distribution",
+          color: "black",
           font: {
-            size: 26
+            size: 26,
           },
           padding: {
-            bottom: 10
-          }
-        }
-      }
-    }
+            bottom: 10,
+          },
+        },
+      },
+    },
   });
 }
 
@@ -445,7 +461,9 @@ sumCategory.addEventListener("change", function () {
 });
 
 function updateExpenseSummary(selectedCategory, summaryContainer) {
-  const expenseItems = document.querySelectorAll(`li.expense.${selectedCategory}`);
+  const expenseItems = document.querySelectorAll(
+    `li.expense.${selectedCategory}`
+  );
 
   // Remove previous infos
   summaryContainer.innerHTML = "";
@@ -501,7 +519,9 @@ function updateExpenseSummary(selectedCategory, summaryContainer) {
     // Total amount display
     const totalDiv = document.createElement("div");
     totalDiv.classList.add("total-amount");
-    totalDiv.innerHTML = `<hr> <h3>You've spent <i>$${sumTotalAmount.toFixed(2)}</i> on <i>${selectedCategory}</i> so far.</h3>`;
+    totalDiv.innerHTML = `<hr> <h3>You've spent <i>$${sumTotalAmount.toFixed(
+      2
+    )}</i> on <i>${selectedCategory}</i> so far.</h3>`;
     summaryContainer.appendChild(totalDiv);
   } else {
     if (selectedCategory !== "default") {
@@ -512,8 +532,6 @@ function updateExpenseSummary(selectedCategory, summaryContainer) {
     }
   }
 }
-
-
 
 // Monthly Summary Modal
 // Month Selection
@@ -541,7 +559,7 @@ monthSelector.addEventListener("change", function () {
       const amount = monthlyItem.querySelector("span").textContent;
 
       // Extract specific month
-      const month = date.split('-')[1];
+      const month = date.split("-")[1];
 
       if (month === selectedMonth) {
         expensesArray.push({
@@ -570,7 +588,7 @@ monthSelector.addEventListener("change", function () {
       table.appendChild(headerRow);
 
       // Populate the table with the sorted expenses
-      expensesArray.forEach(expense => {
+      expensesArray.forEach((expense) => {
         const expenseRow = document.createElement("tr");
         expenseRow.innerHTML = `
           <td>${expense.date}</td>
@@ -588,48 +606,39 @@ monthSelector.addEventListener("change", function () {
       monthlySummaryContainer.appendChild(table);
 
       // Convert Months
-      let translatedMonth = '';
-      if (selectedMonth == '01') {
-        translatedMonth = 'January';
-      }
-      else if (selectedMonth == '02') {
-        translatedMonth = 'Feburary';
-      }
-      else if (selectedMonth == '03') {
-        translatedMonth = 'March';
-      }
-      else if (selectedMonth == '04') {
-        translatedMonth = 'April';
-      }
-      else if (selectedMonth == '05') {
-        translatedMonth = 'May';
-      }
-      else if (selectedMonth == '06') {
-        translatedMonth = 'June';
-      }
-      else if (selectedMonth == '07') {
-        translatedMonth = 'July';
-      }
-      else if (selectedMonth == '08') {
-        translatedMonth = 'August';
-      }
-      else if (selectedMonth == '09') {
-        translatedMonth = 'September';
-      }
-      else if (selectedMonth == '10') {
-        translatedMonth = 'October';
-      }
-      else if (selectedMonth == '11') {
-        translatedMonth = 'November';
-      }
-      else if (selectedMonth == '12') {
-        translatedMonth = 'December';
+      let translatedMonth = "";
+      if (selectedMonth == "01") {
+        translatedMonth = "January";
+      } else if (selectedMonth == "02") {
+        translatedMonth = "Feburary";
+      } else if (selectedMonth == "03") {
+        translatedMonth = "March";
+      } else if (selectedMonth == "04") {
+        translatedMonth = "April";
+      } else if (selectedMonth == "05") {
+        translatedMonth = "May";
+      } else if (selectedMonth == "06") {
+        translatedMonth = "June";
+      } else if (selectedMonth == "07") {
+        translatedMonth = "July";
+      } else if (selectedMonth == "08") {
+        translatedMonth = "August";
+      } else if (selectedMonth == "09") {
+        translatedMonth = "September";
+      } else if (selectedMonth == "10") {
+        translatedMonth = "October";
+      } else if (selectedMonth == "11") {
+        translatedMonth = "November";
+      } else if (selectedMonth == "12") {
+        translatedMonth = "December";
       }
 
       // Total amount display
       const totalDiv = document.createElement("div");
       totalDiv.classList.add("total-amount");
-      totalDiv.innerHTML = `<hr> <h3>You spent <i>$${totalAmount.toFixed(2)}</i> in <i>${translatedMonth}</i>.</h3>`;
+      totalDiv.innerHTML = `<hr> <h3>You spent <i>$${totalAmount.toFixed(
+        2
+      )}</i> in <i>${translatedMonth}</i>.</h3>`;
       monthlySummaryContainer.appendChild(totalDiv);
     } else {
       // If no expenses for the selected month, display a message
@@ -640,14 +649,21 @@ monthSelector.addEventListener("change", function () {
   }
 });
 
-
-
-
-
 // bar chart
 const monthlySummaryModal = document.getElementById("monthlySummaryModal");
+const budgetCapModal = document.getElementById("budgetCap");
 const openMonthlyBtn = document.getElementById("monthly");
+const openBudgetBtn = document.getElementById("budget");
+const closeBudgetBtn = document.getElementById("close-budget");
 const closeMonthlyBtn = document.getElementById("close-monthly");
+
+openBudgetBtn.onclick = function () {
+  budgetCapModal.style.display = "block";
+};
+
+closeBudgetBtn.onclick = function () {
+  budgetCapModal.style.display = "none";
+};
 
 // Open
 openMonthlyBtn.onclick = function () {
@@ -655,12 +671,12 @@ openMonthlyBtn.onclick = function () {
   monthSelector.value = "default";
   monthlySummaryContainer.innerHTML = `<div> </div>`;
   updateMonthlyBarChart();
-}
+};
 
 // Close
 closeMonthlyBtn.onclick = function () {
   monthlySummaryModal.style.display = "none";
-}
+};
 
 // Create or Update Bar Chart
 let monthlyExpenseChart;
@@ -670,23 +686,25 @@ function updateMonthlyBarChart() {
   const months = Object.keys(monthlyTotals);
   const chartData = Object.values(monthlyTotals);
 
-  const ctx = document.getElementById('monthlyExpenseChart').getContext('2d');
+  const ctx = document.getElementById("monthlyExpenseChart").getContext("2d");
 
   if (monthlyExpenseChart) {
     monthlyExpenseChart.destroy();
   }
 
   monthlyExpenseChart = new Chart(ctx, {
-    type: 'bar',
+    type: "bar",
     data: {
       labels: months,
-      datasets: [{
-        label: 'Monthly Expenses',
-        data: chartData,
-        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-        borderColor: 'rgba(54, 162, 235, 1)',
-        borderWidth: 1
-      }]
+      datasets: [
+        {
+          label: "Monthly Expenses",
+          data: chartData,
+          backgroundColor: "rgba(54, 162, 235, 0.6)",
+          borderColor: "rgba(54, 162, 235, 1)",
+          borderWidth: 1,
+        },
+      ],
     },
     options: {
       responsive: true,
@@ -697,7 +715,7 @@ function updateMonthlyBarChart() {
           max: 1000,
           title: {
             display: true,
-            text: 'Expense Amount ($)',
+            text: "Expense Amount ($)",
             font: {
               size: 16,
             },
@@ -705,43 +723,56 @@ function updateMonthlyBarChart() {
               stepSize: 100,
               callback: function (value) {
                 return value.toLocaleString();
-              }
-            }
-          }
-        }
+              },
+            },
+          },
+        },
       },
       plugins: {
         legend: {
-          display: true
+          display: true,
         },
         title: {
           display: true,
-          text: 'Monthly Expense Summary',
+          text: "Monthly Expense Summary",
           font: {
             size: 20,
-            family: 'Arial'
+            family: "Arial",
           },
-          color: '#000'
-        }
-      }
-    }
+          color: "#000",
+        },
+      },
+    },
   });
 }
 
 // Function to calculate totals per month
 function calculateMonthlyTotals() {
   const monthlyTotals = {
-    January: 0, February: 0, March: 0, April: 0,
-    May: 0, June: 0, July: 0, August: 0,
-    September: 0, October: 0, November: 0, December: 0
+    January: 0,
+    February: 0,
+    March: 0,
+    April: 0,
+    May: 0,
+    June: 0,
+    July: 0,
+    August: 0,
+    September: 0,
+    October: 0,
+    November: 0,
+    December: 0,
   };
 
-  const expenseItems = document.querySelectorAll('li.expense');
+  const expenseItems = document.querySelectorAll("li.expense");
 
   expenseItems.forEach(function (expenseItem) {
     const dateText = expenseItem.querySelector("p").textContent;
-    const month = new Date(dateText).toLocaleString('default', { month: 'long' });
-    const amount = parseFloat(expenseItem.querySelector("span").textContent.replace("$", ""));
+    const month = new Date(dateText).toLocaleString("default", {
+      month: "long",
+    });
+    const amount = parseFloat(
+      expenseItem.querySelector("span").textContent.replace("$", "")
+    );
 
     if (monthlyTotals[month] !== undefined) {
       monthlyTotals[month] += amount;
