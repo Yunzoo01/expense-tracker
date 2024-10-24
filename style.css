@@ -58,7 +58,7 @@ main {
         gap: 20px;
         border-radius: 10px;
 
-        >div {
+        > div {
           img {
             max-width: 30px;
           }
@@ -107,7 +107,7 @@ main {
         }
 
         &.etc {
-          background: linear-gradient(to bottom right, #a6a6a6, #ffffff)
+          background: linear-gradient(to bottom right, #a6a6a6, #ffffff);
         }
 
         position: relative;
@@ -165,9 +165,7 @@ main {
       padding-top: 20px;
     }
   }
-
 }
-
 
 /* 기본 모달 스타일 */
 .modal,
@@ -189,7 +187,6 @@ main {
   border: 1px solid #888;
   width: 80%;
   max-width: 500px;
-
 }
 
 .close {
@@ -251,7 +248,8 @@ main {
 }
 
 /* Modal for Summary */
-.sumModal {
+.sumModal,
+#budgetCap {
   display: none;
   position: fixed;
   z-index: 1;
